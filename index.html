@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Music player</title>
+    <link rel="stylesheet" href="./assets/css/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" integrity="sha512-HK5fgLBL+xu6dm/Ii3z4xhlSUyZgTT9tuc/hSrtw6uzJOvgRr2a9jyxxT1ely+B+xFAmJKVSTbpM/CuL7qxO8w==" crossorigin="anonymous" />
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="./assets/js/appMusic.js"></script>
+</head>
+<body>
+<div class="player">
+  <!-- Dashboard -->
+  <div class="dashboard">
+    <!-- Header -->
+    <header>
+      <h4>Now playing:</h4>
+      <h2>String 57th & 9th</h2>
+    </header>
+
+    <!-- CD -->
+    <div class="cd">
+      <div class="cd-thumb">
+      </div>
+    </div>
+
+    <!-- Control -->
+    <div class="control">
+      <div class="btn btn-repeat">
+        <i class="fas fa-redo"></i>
+      </div>
+      <div class="btn btn-prev">
+        <i class="fas fa-step-backward"></i>
+      </div>
+      <div class="btn btn-toggle-play">
+        <i class="fas fa-pause icon-pause"></i>
+        <i class="fas fa-play icon-play"></i>
+      </div>
+      <div class="btn btn-next">
+        <i class="fas fa-step-forward"></i>
+      </div>
+      <div class="btn btn-random">
+        <i class="fas fa-random"></i>
+      </div>
+    </div>
+
+    <input id="progress" class="progress" type="range" value="0" step="1" min="0" max="100">
+
+    <audio id="audio" src="./assets/musicFile/song7.mp3.mp3"></audio>
+  </div>
+
+  <!-- Playlist -->
+  <div class="playlist">
+  </div>
+</div>
+
+<script>
+  // Variable to use in project
+// Constant
+const STORAGE_KEY = 'INDY SONG'
+// Variable recap
+var $ = document.querySelector.bind(document)
+var $$ = document.querySelectorAll.bind(document)
+var _this = app
+// Node Element
+var headerSong = document.querySelector('header h2')
+var thumbNail = document.querySelector('.cd-thumb')
+var audio = document.querySelector('#audio')
+var cd = document.querySelector('.cd')
+var progress = document.querySelector('#progress')
+var prevBtn = document.querySelector('.btn-prev')
+var nextBtn = document.querySelector('.btn-next')
+var randomBtn = document.querySelector('.btn-random')
+var repeatBtn = document.querySelector('.btn-repeat')
+var playlist = document.querySelector('.playlist')
+var optionBtn = document.querySelector('.option')
+
+// Function section
+var app = {
+currentIndex: 0,
+songs: [
+    {
+        name: 'City of Stars',
+        singer: 'Ryan Gosling Emma Stone',
+        path: './assets/musicFile/song1.mp3',
+        img: './assets/img/cityofStarts.jpg',
+    },
+    {
+        name: 'Flower',
+        singer: 'Johnny',
+        path: './assets/musicFile/song2.mp3',
+        img: './assets/img/flower.jpg',
+    },
+    {
+        name: 'Tears Rock',
+        singer: 'Retro',
+        path: './assets/musicFile/song3.mp3',
+        img: './assets/img/tearRock.jpg',
+    },
+    {
+        name: 'Tomorrow',
+        singer: 'Jimmy Sleep',
+        path: './assets/musicFile/song4.mp3',
+        img: './assets/img/tomorow.jpg',
+    },
+    {
+        name: 'I follow him',
+        singer: 'Peggy March',
+        path: './assets/musicFile/song5.mp3',
+        img: './assets/img/followHim.jpg',
+    },
+    {
+        name: 'Don\'t Look Back',
+        singer: 'PREP',
+        path: './assets/musicFile/song6.mp3',
+        img: './assets/img/DontLookBack.jpg',
+    },
+    {
+        name: 'Line By Line',
+        singer: 'PREP',
+        path: './assets/musicFile/song7.mp3',
+        img: './assets/img/lineByLine.jpg',
+    },
+    {
+        name: 'San Francisco',
+        singer: 'Sun Rise',
+        path: './assets/musicFile/song8.mp3',
+        img: './assets/img/sanfrancisco.jpg',
+    },
+    {
+        name: 'Can\'t take my eyes off you',
+        singer: 'Sun Rise',
+        path: './assets/musicFile/song9.mp3',
+        img: './assets/img/iCantCatchMyEye.jpg',
+    },
+    {
+        name: 'Back to the moon',
+        singer: 'Ho-ligan',
+        path: './assets/musicFile/song10.mp3',
+        img: './assets/img/backToTheMoon.jpg',
+    },
+],
+render: function() {
+    var renderSong = this.songs.map(function (song, index) {
+        var _this = app
+        return `<div id="song" class="song ${index === _this.currentIndex ? 'active' : ''}" data-index="${index}">
+        <div class="thumb" style="background-image: url('${song.img}')">
+        </div>
+        <div class="body">
+            <h3 class="title">${song.name}</h3>
+            <p class="author">${song.singer}</p>
+        </div>
+        <div class="option">
+            <i class="fas fa-ellipsis-h"></i>
+        </div>
+    </div>`
+    })
+    document.querySelector('.playlist').innerHTML = renderSong.join('')
+    // Use method join to convert the elements in an array
+    // To the String and each element separate by notation we input in
+    // Parameter of join(parameter) method.
+    // So is here we input notation \n to all elements separate by new line 
+},
+// GET/SET ACTIVE STATUS SONG
+// handleStatusSong: function() {
+//   this.songs.forEach(function (item, index) {
+//     if (this.currentIndex == index) {
+//       var song = document.querySelector('#song').classList.add('active')
+//     }
+//   })
+// },
+defineProperties: function() {
+  // Use for define all property
+  Object.defineProperty(this, 'currentSong', {
+    get: function() {
+      return this.songs[this.currentIndex]
+    }
+  })
+},
+// Property use in toggle play
+isPlaying: false,
+isRandom: false,
+isRepeat: false,
+// localStorage is the object. This object usage allow user saving the key/value pair on browser
+// This object stores data no expiration date (include user close browser it still storage data)
+// But with object sessionLocal it will saving to data per session (if tab browser close it will lost data)
+configure: JSON.parse(localStorage.getItem(STORAGE_KEY)) || {},
+setConfigure: function(key, value) {
+  // We can use localStorage to save the status configure active of user in an object
+  // And use method set/get/removeItem to get value from key/value of this object
+  this.configure[key] = value
+  // An object localStorage just get data is string type. So if this is other data
+  // We should convert it into string to put it in an object localStorage
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(this.configure))
+},
+handleEvent: function() {
+  // Use contain all event in app
+  // Create rotate animation cd thumbnail
+  var thumbNailRotate = thumbNail.animate([
+    // Arguments first of method animation give is an array
+    // And in this an array we put the configure of animation in CSS we want use
+    // Put using a object
+    { transform: 'rotate(360deg)'}
+  ], {
+    // Arguments 2 is the object. Call it is the 'option'
+    // This arguments decide/specify/identify how way this animation rotate
+    // 10000 in JVS = 10s --> that mean: This thumbnail rotate in 10 seconds
+    duration: 10000,
+    // Iterations this animation 'infinity'(perform this animation infinity)
+    // It like the timing function
+    iterations: Infinity,
+  })
+  // Set the logic:
+  // After we create this animation and run this
+  // We need pause it after. Cause in first time access web page
+  // The thumbnail CD need pause. So if we don't pause it will run
+  // --> Default the CD stop. We will call this thumbnail to run in function/event while the song run
+  // And for CD stop rotate in function/event while the song pause
+  // (Put this logic nested logic play/pause the song. Set it at position equivalent(play=play/ pause= pause))
+  thumbNailRotate.pause()
+
+  var cdWidth = cd.offsetWidth
+  // EVENT HANDLE ZOOM THUMBNAIL/ELEMENT NODE CD
+  document.onscroll = function() {
+    var scrollTop = window.scrollY || document.documentElement.scrollTop
+    var newCdWidth = cdWidth - scrollTop
+    // We get acreage element CD and subtract for the acreage when scroll
+    // This will create effect when we scroll CD will small equivalent with acreage we scroll
+    // But if we scroll speed it will bug
+    // Cause now value of cd.style.width will is negative number
+    // But in CSS if have negative number it will = invalid
+    // So we should create the condition for check this
+    // Use condition sentence command
+    // if(cd.style.width = newCdWidth + 'px' < 0) {
+    //   cd.style.width = 0
+    // } else {
+    //   cd.style.width = newCdWidth + 'px'
+    // }
+    cd.style.width = newCdWidth > 0 ? newCdWidth + 'px' : 0
+    cd.style.opacity = newCdWidth / cdWidth
+  }
+  // EVENT HANDLE TOGGLE STATUS PLAY MUSIC
+  var togglePlay = document.querySelector('.btn-toggle-play')
+  // Assign this(app) for a variable to use in element node
+  // Cause 'this' in element node is this element not is app
+  // So we need assign it outside
+  var _this = this
+  togglePlay.onclick = function() {
+    console.log(audio)
+    audio.play()
+    // Use for catch the PROMISE google return
+    // if(audio !== undefined) {
+    //   audio.then(function() {
+    //     audio.autoplay
+    //   })
+    //   audio.catch(function(err) {
+    //     console.log(err)
+    //   })
+    // }
+    var player = document.querySelector('.player')
+    if(_this.isPlaying) {
+      audio.pause()
+    } else {
+      audio.play()
+    }
+    // When song play
+    audio.onplay = function() {
+      // When the song play --> according to this CD rotate
+      thumbNailRotate.play()
+      _this.isPlaying = true
+      player.classList.add('playing')
+      // _this.handleStatusSong()
+    }
+    // When song pause
+    audio.onpause = function() {
+       // When the song pause --> according to this CD STOP rotate
+      thumbNailRotate.pause()
+      _this.isPlaying = false
+      player.classList.remove('playing')
+      // Different is here:
+      // If we set them in condition if/else it just work like a logic
+      // But in this syntax it work like the feature. Cause the object/elements audio
+      // Can catch the status 'audio/song/mp3,4'.
+      // And if it really work in this status. The condition will execute
+      // Reverse it don't. This code optimization than only use command if/else(can't caught status only logic)
+    }
+  }
+  // EVENT HANDLE PROGRESS SONG/ SEEKS SONG
+  // First set/get time for range
+  // Event ontimeupdate => fires when audio time have changed(when audio play). Reverse if pause it not fires
+  // Get current range the song(convert value range to percent)
+  audio.ontimeupdate = function() {
+    if(audio.duration) {
+      // Property duration use for get/set duration total song
+      // Property currentTime use for get/set time current of song
+      // Calculate percent and assign it for range progress
+      var progressPercent = Math.floor(audio.currentTime / audio.duration * 100)
+      progress.value = progressPercent
+    }
+  }
+  // Seek the song(convert range from percent to second)
+  progress.onchange = function(e) {
+    // Calculate the second of this song by math
+    // Reverse calculate currentTime/duration*100(take percent current) to take the second
+    // CurrentPercent * totalDuration / 100 = second current
+    seekTime = Math.floor(e.target.value * audio.duration / 100)
+    // After calculate second current assign this stuff for currentTime of 'audio'
+    // currentTime express for progress audio play
+    // currentTime = 10s --> audio play at 10s(cause it's current time audio play)
+    // So if we assign it for seekTime(auto convert from percent to second).
+    // It will playing according to value we chose
+    audio.currentTime = seekTime
+  }
+  // HANDLE EVENT BTN NEXT/PREVIOUS SONG
+  // Next song button
+  nextBtn.onclick = function() {
+    // Cause isRandom(default = false). But if we click to the button random
+    // This property will switch to true (false --> true)
+    // And if we click button next. The method random song will run. And output expect will is random song
+    if (_this.isRandom) {
+    _this.playRandomSong()
+    } else {
+      // But if we don't turn on randomButton just click next button
+      // The method next song will run like normal
+      // This logic also usage for the previousBtn
+      _this.nextSong()
+    }
+    _this.render()
+    audio.play()
+  }
+  // Previous song button
+  prevBtn.onclick = function() {
+    // Logic like next song (above)
+    if (_this.isRandom) {
+      _this.playRandomSong()
+    } else {
+      _this.previousSong()
+    }
+    _this.render()
+    audio.play()
+  }
+  // HANDLE EVENT RANDOM SONG
+  randomBtn.onclick = function(e) {
+    _this.isRandom = !_this.isRandom
+    // Configure property usage for save the configure/status of the button in storageLocal of browser
+    _this.setConfigure('isRandom', _this.isRandom)
+    randomBtn.classList.toggle('active', _this.isRandom)
+  }
+
+  // HANDLE EVENT NEXT/REPEAT WHILE ENDED SONG
+  // Next when ended
+  audio.onended = function() {
+    // We already set property 'isRepeat = false' before.
+    // So if we click button repeat. isRepeat switch false --> true
+    // Run command audio.play() repeat the song
+    // If don't turn on repeat button (isRepeat = false)
+    // Run command nextBtn.click(). Click method like behavior click. nextBtn.click = click next button (next song)
+    if (_this.isRepeat) {
+      audio.play()
+    } else {
+      // And if the button random turn on. While the song at point end
+      // It will run the next song is the random song (asynchronous)
+      // If button random && button repeat turn off --> it will run the next song (according to synchronous)
+      if (_this.isRandom) {
+        _this.playRandomSong()
+        _this.render()
+        audio.play()
+      } else {
+        nextBtn.click()
+      }
+    }
+  }
+  // Repeat when ended
+  repeatBtn.onclick = function() {
+    _this.isRepeat = !_this.isRepeat
+    // Configure property usage for save the configure/status of the button in storageLocal of browser
+    _this.setConfigure('isRepeat', _this.isRepeat)
+    repeatBtn.classList.toggle('active', _this.isRepeat)
+  }
+  // Listen behavior click song in playlist
+  playlist.onclick = function(e) {
+    var songNode = e.target.closest('.song:not(.active)')
+    // closest Method: will return the element already listened event or element parent of this
+    // And it will compare this element with first parameter(element) we input in method closest(p1)
+    // If element return and element we put don't match each other. It will return value is: NULL
+    // NOTE: if we click to child of this stuff. It still right (due to propagation in event DOM)
+    // So this special case: But with method closest. It just run from position element call it and propagation into outside
+    // So if element is not event: But we still put element child --> it will null (cause it just handle from itself to outside)
+    if (songNode || optionBtn) {
+      // When click at song (listen event at element node song)
+      // For sure click in the song. We should check it on more time
+      // NOTE: If condition nested if condition can usage instead operator logic &&
+      if (songNode) {
+        // So when we click on any elements on node song
+        // We will assign index of this element for value of property currentIndex to switch the song
+        _this.currentIndex = Number(songNode.getAttribute('data-index'))
+        // And loadCurrentSong on the CD
+        _this.loadCurrentSong()
+        // Render info song in status active
+        _this.render()
+        // And play this song when final all steps above
+        audio.play()
+      }
+      // When click at optional
+      // if (optionBtn) {
+        // Use for contain the code of event when we click in optional button
+        // With click at song this event is private and the optional is private to. So separate between them is
+        // The condition sentence command IF
+      // }
+    }
+  }
+
+},
+loadConfigure: function() {
+  // After we saving status configure on localStorage. We should render this configure to outside
+  this.isRandom = this.configure.isRandom
+  this.isRepeat = this.configure.isRepeat
+  // Or we can use the syntax is:
+  // Object.assign(this, this.configure)
+  // This object will unify this.configure to the Object 'this'(object app)
+  // But in the future maybe will have some key we don't want them put in the app. So we should put it odd like that
+  
+},
+loadCurrentSong: function() {
+  // Load information the song out User Interface when access the web page
+  // Get element node need use
+  // Render info by elements node has get
+  headerSong.innerText = this.currentSong.name
+  thumbNail.style.backgroundImage = `url('${this.currentSong.img}')`
+  audio.scr = this.currentSong.path
+
+},
+// Handle button Next/Previous SONG
+nextSong: function() {
+  this.currentIndex++
+  if(this.currentIndex >= this.songs.length) {
+    // If the order song > songsLength (list song)
+    // Replay to the first song (replay song at index 0 in an array)
+    this.currentIndex = 0
+  }
+  // After up currentIndex(current song)
+  // Need render it(load current song on more time)
+  // With any impact to new song. We should call method 'loadCurrentSong' to load new song
+  this.loadCurrentSong()
+  this.scrollSongIntoView()
+},
+previousSong: function() {
+  this.currentIndex--
+  if(this.currentIndex < 0) {
+    // If songLength < 0 (equivalent to first song)
+    // Return the last song in list songs
+    // LastSong = length of listSong - 1 (cause list contain in an array index order from 0)
+    // Due to this length always = index of an array + 1
+    // --> length - 1 = order last in index
+    this.currentIndex = this.songs.length - 1
+  }
+  this.loadCurrentSong()
+  this.scrollSongIntoViewPre()
+},
+playRandomSong: function() {
+  var randomIndex
+  do {
+    // Math.floor to render integer number below
+    // Math.random to get the number random
+    // * with length of array contain list songs(total songs). We will have equal rate for all songs
+   randomIndex = Math.floor(Math.random() * this.songs.length )
+  } while (randomIndex === this.currentIndex)
+  // Use do/while to iterations an array to get songs random least one time
+  // But if random out the songs is the song present
+  // Compare this song to the song present. If equal value(between a both song). Again iterate
+  // Then output the else song. We stop the loop. And assign this value for randomIndex
+  // And set/assign value property currentIndex = newIndex(song random(has filter different with present song))
+  this.currentIndex = randomIndex
+  // NOTE: Always load current song when play new song. To load/render information the song
+  this.loadCurrentSong()
+  // With random should set scrollSongIntoViewPre() cause it can random output is: 012345
+  // But scrollSongIntoView() just have 0-->2. So we set for it scrollSongIntoViewPre()
+  this.scrollSongIntoViewPre()
+},
+scrollSongIntoView: function() {
+  if (this.currentIndex === 0 || this.currentIndex === 1 || this.currentIndex === 2) {
+    setTimeout(function() {
+      document.querySelector('.song.active').scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      })
+    }, 250)
+  } else {
+    setTimeout(function() {
+      document.querySelector('.song.active').scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+      })
+    }, 250)
+  }
+},
+scrollSongIntoViewPre: function() {
+  // If indexCurrent is one in five song at above (at first point). If we still set effect/animation = nearest
+  // It will be hide by CD element. So we should put condition expression for it
+  // If it is one in five of first song. It will display: center --> auto display center list when index is 0-->5
+  // NOTE: it auto scroll into view elements have a pair class is .song.active (song in status active)
+  // Always in range/view nearest or center to user can see
+  if (this.currentIndex === 0 || this.currentIndex === 1 || this.currentIndex === 2 || this.currentIndex === 3
+  || this.currentIndex === 4 || this.currentIndex === 5) {
+    setTimeout(function() {
+      document.querySelector('.song.active').scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      })
+    }, 250)
+  } else {
+    setTimeout(function() {
+      document.querySelector('.song.active').scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+      })
+    }, 250)
+  }
+},
+start: function() {
+  // Load configure is the task important so we call this method first
+  this.loadConfigure()
+  // Define property inner object
+  this.defineProperties()
+  // Contain event/ listen event from DOM
+  this.handleEvent()
+  // Load information of the current song
+  this.loadCurrentSong()
+  // Render music information to interface
+  this.render()
+  
+  // After load configure we saved in localStorage. We need render interface status of this configure
+  // How to for them match each other. Example: If configure RandomBtn = true(on) --> The status randomBtn will active
+  randomBtn.classList.toggle('active', this.isRandom)
+  repeatBtn.classList.toggle('active', this.isRepeat)
+}
+}
+
+app.start()
+</script>
+
+<!-- Design from: https://static.collectui.com/shots/3671744/musicloud-revolutionary-app-for-music-streaming-large -->
+</body>
+</html>
